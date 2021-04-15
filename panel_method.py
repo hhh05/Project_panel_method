@@ -6,3 +6,4 @@ Created on Thu Apr 15 10:27:28 2021
 """
 """ The goal of this code is to compute the velocity around an airfoil with the linear vortex sheet
 panel method"""
+#bonjour
