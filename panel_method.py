@@ -7,6 +7,8 @@ Created on Thu Apr 15 10:27:28 2021
 """ The goal of this code is to compute the velocity around an airfoil with the linear vortex sheet
 panel method"""
 
+"""Comment: 200 or 300 hundreds panels necessary"""
+
 import numpy as np
 from matplotlib import pyplot as plt
 
