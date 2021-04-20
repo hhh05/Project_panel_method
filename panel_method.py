@@ -16,7 +16,7 @@ def y_e(x,c):
 def y_i(x,c):
     return - 0.190361*(np.sqrt(x/c)) + 0.161628*(x/c) - 0.341176*(x/c)**2 + 0.897631*(x/c)**3 - 0.531252*(x/c)**4
 
-#c = 1 
+c = 1 
 #x = np.linspace(0,1,1000)
 #y = y_e(x,c)
 #yy = y_i(x,c)
@@ -48,31 +48,39 @@ class Panel:
         self.nx = np.cos(self.angle)
         self.ny = np.sin(self.angle)
         
-def discretization(N):
-    #N*2 -1 panels
+        
+def discretization(n):
+    #n*2 -1 panels
     #the panels are constructed clockwise
-    x1=np.linspace(1,0,N,endpoint=False)
+    x1=np.linspace(1,0,n,endpoint=False)
     y1=y_i(x1,c)
-    x2=np.linspace(0,1,N)
+    x2=np.linspace(0,1,n)
     y2=y_e(x2,c)
     x=np.append(x1,x2)
     y=np.append(y1,y2) 
     
-    plt.plot(x,y) 
+    plt.plot(x,y,'-o') 
     
-    panels = np.empty(N*2-1, dtype=object)
+    panels = np.empty(n*2-1, dtype=object)
     for i in range(0, np.size(x)-1):
         panels[i] = Panel(x[i],x[i+1],y[i],y[i+1])
-    return x,y,panels
+    N=2*n-1
+    return N,x,y,panels
     
-x,y,panels = discretization(200)
+N,x,y,panels = discretization(30)
+
+gamma=np.zeros(len(x)) #gamma[0] must be equal to -gamma[-1]
+
 
 ###print for debugging###
-#for i in range(0,np.size(panels)): 
+for i in range(0,np.size(panels)): 
 #    print(i)
 #    print("xi",panels[i].xi)
 #    print(panels[i].length)
 #    print(np.rad2deg(panels[i].angle))
+#    print(i)
+#    print("nx",panels[i].nx)
+#    print("ny",panels[i].ny)
         
         
     
