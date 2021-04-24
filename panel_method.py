@@ -50,41 +50,47 @@ class Panel:
         
         
 def discretization(n):
-    #n*2 -1 panels
-    #the panels are constructed clockwise
-    x1=np.linspace(1,0,n,endpoint=False)
+    #(n-1)*2 panels
+    theta = np.linspace(0,0.95*np.pi,n)
+    x1= (1-np.cos(theta))/(1-np.cos(theta[-1]) )
+    x1=np.flip(x1)
+    x2=np.flip(x1)
+    x2=np.delete(x2,0)
+    
     y1=y_i(x1,c)
-    x2=np.linspace(0,1,n)
     y2=y_e(x2,c)
+    
     x=np.append(x1,x2)
-    y=np.append(y1,y2) 
+    y=np.append(y1,y2)
+    
+    print("size x",np.size(x))
+    
+    print("size y",np.size(y))
+    
+    print("n",n)         
     
     plt.plot(x,y,'-o') 
     
-    panels = np.empty(n*2-1, dtype=object)
+    panels = np.empty((n-1)*2, dtype=object)
     for i in range(0, np.size(x)-1):
         panels[i] = Panel(x[i],x[i+1],y[i],y[i+1])
-    N=2*n-1
+    N=2*(n-1)
     return N,x,y,panels
     
-N,x,y,panels = discretization(30)
+N,x,y,panels = discretization(20)
 
 gamma=np.zeros(len(x)) #gamma[0] must be equal to -gamma[-1]
 
 
 ###print for debugging###
 for i in range(0,np.size(panels)): 
-#    print(i)
-#    print("xi",panels[i].xi)
-#    print(panels[i].length)
-#    print(np.rad2deg(panels[i].angle))
-#    print(i)
-#    print("nx",panels[i].nx)
-#    print("ny",panels[i].ny)
-        
-        
-    
-    
+    print("Panel",i+1)
+    print("xi",panels[i].xi)
+    print(panels[i].length)
+    print(np.rad2deg(panels[i].angle))
+    print("nx",panels[i].nx)
+    print("ny",panels[i].ny)
+
             
         
         
