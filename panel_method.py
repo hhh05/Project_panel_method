@@ -109,17 +109,6 @@ def u(x,y,a,b):
 def v(x,y,a,b):
     return -1/(2*np.pi) *( (a*(-(x-b)+y*np.arctan((x-b)/y)) + (1/2)*(a*x+b)*np.log((x-b)**2+y**2)) - (a*(-(x+b)+y*np.arctan((x+b)/y)) + (1/2)*(a*x+b)*np.log((x+b)**2+y**2)) )
 
-def contribution_old(x,y,b):
-    A=(-1/(2*np.pi))*(y/2)*np.log(((x-b)**2 + y**2)/((x+b)**2 + y**2))
-    B=x*( (np.arctan((x-b)/y)) - (np.arctan((x+b)/y)) )*(-1/(2*np.pi))
-    C=( (np.arctan((x-b)/y)) - (np.arctan((x+b)/y)) )*(-1/(2*np.pi))
-    contribu = np.array([(A-B-C)/(2*b) , (B-A-C)/(2*b)])
-    
-    F= (-1/(2*np.pi))*(2*b + y*( np.arctan((x-b)/y) - np.arctan((x+b)/y) ) )
-    G= (-1/(2*np.pi))*np.log(((x-b)**2 + y**2)/((x+b)**2 + y**2))
-    contribv = np.array([(F+(G/2)*(x+1) )/(2*b), ((G/2)*(1-x) - F)/(2*b)])
-    
-    return contribu, contribv #(gamma left, gamma right)
 
 def contribution(x,y,b):
     A=(-1/(2*np.pi))*(y/2)*np.log(((x-b)**2 + y**2)/((x+b)**2 + y**2))
@@ -152,7 +141,7 @@ for i in range(0,len(panels)):
             yp = np.abs(np.cos(angle) *np.linalg.norm(a))* np.sign(np.dot(a,panel_sender.normal))
             
             
-            if(i==15):
+#            if(i==15):
 #                print(np.rad2deg(angle))
 #                print("panel (i,j)","(",i,",",j,")","xp",xp,"yp",yp,"dot x",np.sign(np.dot(a,panel_sender.longitudinal)),"dot y",np.sign(np.dot(a,panel_sender.normal)))
 #                taila=[panel_sender.xc,panel_sender.yc]
@@ -174,8 +163,8 @@ for i in range(0,len(panels)):
 #                plt.quiver(*tailcoord,((panel_sender.longitudinal[0])/panel_sender.length)*xp + panel_sender.normal[0]*yp,((panel_sender.longitudinal[1])/panel_sender.length)*xp + panel_sender.normal[1]*yp,scale=1,scale_units='xy',angles = 'xy',color=['r'],width=0.003)
                 
                 
-                plt.xlim([-0.5,1.5])
-                plt.ylim([-1,1])   
+#                plt.xlim([-0.5,1.5])
+#                plt.ylim([-1,1])   
 #                print(np.dot(panel_sender.normal,panel_sender.longitudinal))
             
             
@@ -329,8 +318,8 @@ plt.plot([5,10,15],[Cl3,Cl2,Cl])
 
 ####print for debugging###
 #plt.figure()
-for i in range(0,np.size(panels)):
-    panel = panels[i]
+#for i in range(0,np.size(panels)):
+#    panel = panels[i]
         
 #    print("Panel",i+1)
 #    print("xi",panels[i].xi)
