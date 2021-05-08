@@ -76,21 +76,26 @@ def discretization(n):
     print("n",n)         
     
     plt.plot(x,y,'-o') 
-    
+    s=np.zeros(len(x))
     panels = np.empty((2*n)-2, dtype=object)
     for i in range(0, (2*n)-2):
 #        print("yi",y[i],i)
 #        print("yi+1",y[i+1],i+1)
         panels[i] = Panel(x[i],x[i+1],y[i],y[i+1])
+        s[i+1]=s[i]+panels[i].length
+        
     N=(2*n)-2
-    return N,x,y,panels
+    return N,x,y,panels,s
     
-N,x,y,panels = discretization(20)
+N,x,y,panels,s = discretization(150)
 
 print("print")
-print(len(x))
-print(len(y))
-print(N)
+print("len(x)",len(x))
+print("len(y)",len(y))
+print("N",N)
+print("x:",x)
+print("s:",s)
+
 """Creation of left and side of the equation"""
 
 
@@ -104,7 +109,7 @@ def u(x,y,a,b):
 def v(x,y,a,b):
     return -1/(2*np.pi) *( (a*(-(x-b)+y*np.arctan((x-b)/y)) + (1/2)*(a*x+b)*np.log((x-b)**2+y**2)) - (a*(-(x+b)+y*np.arctan((x+b)/y)) + (1/2)*(a*x+b)*np.log((x+b)**2+y**2)) )
 
-def contribution(x,y,b):
+def contribution_old(x,y,b):
     A=(-1/(2*np.pi))*(y/2)*np.log(((x-b)**2 + y**2)/((x+b)**2 + y**2))
     B=x*( (np.arctan((x-b)/y)) - (np.arctan((x+b)/y)) )*(-1/(2*np.pi))
     C=( (np.arctan((x-b)/y)) - (np.arctan((x+b)/y)) )*(-1/(2*np.pi))
@@ -114,7 +119,20 @@ def contribution(x,y,b):
     G= (-1/(2*np.pi))*np.log(((x-b)**2 + y**2)/((x+b)**2 + y**2))
     contribv = np.array([(F+(G/2)*(x+1) )/(2*b), ((G/2)*(1-x) - F)/(2*b)])
     
+    return contribu, contribv #(gamma left, gamma right)
+
+def contribution(x,y,b):
+    A=(-1/(2*np.pi))*(y/2)*np.log(((x-b)**2 + y**2)/((x+b)**2 + y**2))
+    B=x*( (np.arctan((x-b)/y)) - (np.arctan((x+b)/y)) )*(-1/(2*np.pi))
+    C=( (np.arctan((x-b)/y)) - (np.arctan((x+b)/y)) )*(-1/(2*np.pi))
+    contribu = np.array([(1/2)*(((A-B)/b) - C) ,(1/2)*(((B-A)/b) - C) ])
+    
+    F= (-1/(2*np.pi))*(2*b + y*( np.arctan((x-b)/y) - np.arctan((x+b)/y) ) )
+    G= (-1/(2*np.pi))*np.log(((x-b)**2 + y**2)/((x+b)**2 + y**2))
+    contribv = np.array([((2*F+x*G)/(4*b))+(G/4) , (G/4)-((2*F+x*G)/(4*b))])
+    
     return np.flip(contribu), np.flip(contribv) #(gamma left, gamma right)
+
 
 
 for i in range(0,len(panels)):
@@ -130,19 +148,35 @@ for i in range(0,len(panels)):
             #print(angle-np.pi/2)
             if(angle >= np.pi/2):
                 angle=np.pi-angle
-            xp = np.sin(angle) *np.linalg.norm(a)* np.sign(np.dot(a,panel_sender.longitudinal))
-            yp = np.cos(angle) *np.linalg.norm(a)* np.sign(np.dot(a,panel_sender.normal))
-#            if(i==8):
+            xp = np.abs(np.sin(angle) *np.linalg.norm(a))* np.sign(np.dot(a,panel_sender.longitudinal))
+            yp = np.abs(np.cos(angle) *np.linalg.norm(a))* np.sign(np.dot(a,panel_sender.normal))
+            
+            
+            if(i==15):
 #                print(np.rad2deg(angle))
 #                print("panel (i,j)","(",i,",",j,")","xp",xp,"yp",yp,"dot x",np.sign(np.dot(a,panel_sender.longitudinal)),"dot y",np.sign(np.dot(a,panel_sender.normal)))
-#               taila=[panel_sender.xc,panel_sender.yc]
-#                plt.quiver(*taila,a[0],a[1],scale=1,scale_units='xy',angles = 'xy',color=['g', 'r', 'k'])
+#                taila=[panel_sender.xc,panel_sender.yc]
+#                plt.quiver(*taila,a[0],a[1],scale=1,scale_units='xy',angles = 'xy',color=['g', 'r', 'k'],width=0.005)
 #                tailb=[panel_sender.xi,panel_sender.yi]
-#                plt.quiver(*tailb,panel_sender.longitudinal[0],panel_sender.longitudinal[1],scale=1,scale_units='xy',angles = 'xy',color=['g', 'r', 'k'])
+#                plt.quiver(*tailb,panel_sender.longitudinal[0],panel_sender.longitudinal[1],scale=1,scale_units='xy',angles = 'xy',color=['g', 'r', 'k'],width=0.005)
 #                tailc=[panel_sender.xc,panel_sender.yc]
-#                plt.quiver(*tailc,panel_sender.normal[0],panel_sender.normal[1],scale=1,scale_units='xy',angles = 'xy',color=['g', 'r', 'k'])
-#                plt.xlim([-0.5,1.5])
-#                plt.ylim([-1,1])               
+#                plt.quiver(*tailc,panel_sender.normal[0],panel_sender.normal[1],scale=1,scale_units='xy',angles = 'xy',color=['g', 'r', 'k'],width=0.005)
+#                ##xp##
+#                tailxp=[panel_sender.xc,panel_sender.yc]
+#                plt.quiver(*tailc,((panel_sender.longitudinal[0])/panel_sender.length)*xp,((panel_sender.longitudinal[1])/panel_sender.length)*xp,scale=1,scale_units='xy',angles = 'xy',color=['g', 'r', 'k'])
+#                
+#                ##yp##
+#                tailyp=[panel_sender.xc,panel_sender.yc]
+#                plt.quiver(*tailc,panel_sender.normal[0]*yp,panel_sender.normal[1]*yp,scale=1,scale_units='xy',angles = 'xy',color=['g', 'r', 'k'])
+#                
+#                #coord
+#                tailcoord=[panel_sender.xc,panel_sender.yc]
+#                plt.quiver(*tailcoord,((panel_sender.longitudinal[0])/panel_sender.length)*xp + panel_sender.normal[0]*yp,((panel_sender.longitudinal[1])/panel_sender.length)*xp + panel_sender.normal[1]*yp,scale=1,scale_units='xy',angles = 'xy',color=['r'],width=0.003)
+                
+                
+                plt.xlim([-0.5,1.5])
+                plt.ylim([-1,1])   
+#                print(np.dot(panel_sender.normal,panel_sender.longitudinal))
             
             
             
@@ -175,15 +209,30 @@ A[-1,0]=1
 A[-1,-1]= 1
 
 
-
 """Creation of right hand side of the equation"""
-Uinf=20*np.array([1,0])
+Uinf=60*np.array([1,0.15])
 bright=np.zeros(N+1)
 
 for k in range(0,len(panels)):
     panel=panels[k]
     bright[k]=-np.dot(Uinf,panel.normal)
+    
+#tailk=[0,0]
+#plt.quiver(*tailk,Uinf[0],Uinf[1],scale=1,scale_units='xy',angles = 'xy',color=['g', 'r', 'k'])
+    
+Uinf2=60*np.array([1,0.10])
+bright2=np.zeros(N+1)
 
+for k in range(0,len(panels)):
+    panel=panels[k]
+    bright2[k]=-np.dot(Uinf2,panel.normal)
+
+Uinf3=60*np.array([1,0.05])
+bright3=np.zeros(N+1)
+
+for k in range(0,len(panels)):
+    panel=panels[k]
+    bright3[k]=-np.dot(Uinf3,panel.normal)    
 
 """Solving the system"""
 
@@ -191,11 +240,86 @@ for k in range(0,len(panels)):
 gamma_solve = np.linalg.solve(A,bright)
 #gamma_solve, residuals, rank, s = np.linalg.lstsq(A,bright)
 
+gamma_solve2 = np.linalg.solve(A,bright2)
+#gamma_solve2, residuals, rank, s = np.linalg.lstsq(A,bright2)
 
-print(gamma_solve/20)
+gamma_solve3 = np.linalg.solve(A,bright3)
+#gamma_solve3, residuals, rank, s = np.linalg.lstsq(A,bright3)
+
+
+"""Plotting the Gamma distribution"""
+print("#########Gamma Solve##################")
+      
+print(gamma_solve/np.linalg.norm(Uinf))
 
 plt.figure()
-plt.plot(np.arange(0,len(gamma_solve)),gamma_solve/20,"-o")    
+plt.title("Clockwise gamma distribution")
+plt.xlabel("s/c")
+plt.ylabel("gamma(s)/Uinf")
+plt.plot(s/c,gamma_solve/np.linalg.norm(Uinf), label="15° angle")
+plt.plot(s/c,gamma_solve2/np.linalg.norm(Uinf2), label="10° angle")
+plt.plot(s/c,gamma_solve3/np.linalg.norm(Uinf3), label="5° angle")
+plt.ylim([-2.5,1.5])
+plt.legend()
+    
+#plt.figure()
+#plt.title("Counter-Clockwise gamma distribution")
+#plt.plot(s/c,np.flip(gamma_solve)/np.linalg.norm(Uinf))  
+#plt.xlabel("s/c")
+#plt.ylabel("gamma/Uinf")
+
+"""Computing and Plotting the Cp"""
+cp=1-(gamma_solve/np.linalg.norm(Uinf))**2
+cp2=1-(gamma_solve2/np.linalg.norm(Uinf2))**2
+cp3=1-(gamma_solve3/np.linalg.norm(Uinf3))**2
+
+plt.figure()
+plt.title("Pressure coefficient Cp")
+plt.plot(s/c,cp, label="15° angle")
+plt.plot(s/c,cp2, label="10° angle")
+plt.plot(s/c,cp3, label="5° angle")
+plt.xlabel("s/c")
+plt.ylabel("Cp(s)")
+plt.ylim([-4.5,1.5])
+plt.legend()
+
+"""Computing and Plotting the Lift Coefficient"""
+print("#################Lift Coefficient####################")
+      
+G=0
+for i in range (0, len(panels)):
+    if(gamma_solve[i]<gamma_solve[i+1]):
+        G+=((gamma_solve[i]*panels[i].length)+((gamma_solve[i+1]-gamma_solve[i])*panels[i].length/2))
+    else:
+        G+=((gamma_solve[i+1]*panels[i].length)+((gamma_solve[i]-gamma_solve[i+1])*panels[i].length/2))
+
+Cl=-(2*G)/(np.linalg.norm(Uinf)*c)
+print("Cl 15°:",Cl)
+
+G2=0
+for i in range (0, len(panels)):
+    if(gamma_solve2[i]<gamma_solve2[i+1]):
+        G2+=((gamma_solve2[i]*panels[i].length)+((gamma_solve2[i+1]-gamma_solve2[i])*panels[i].length/2))
+    else:
+        G2+=((gamma_solve2[i+1]*panels[i].length)+((gamma_solve2[i]-gamma_solve[i+1])*panels[i].length/2))
+
+Cl2=-(2*G2)/(np.linalg.norm(Uinf2)*c)
+print("Cl 10°:",Cl2)
+
+G3=0
+for i in range (0, len(panels)):
+    if(gamma_solve3[i]<gamma_solve3[i+1]):
+        G3+=((gamma_solve3[i]*panels[i].length)+((gamma_solve3[i+1]-gamma_solve3[i])*panels[i].length/2))
+    else:
+        G3+=((gamma_solve3[i+1]*panels[i].length)+((gamma_solve3[i]-gamma_solve3[i+1])*panels[i].length/2))
+
+Cl3=-(2*G3)/(np.linalg.norm(Uinf3)*c)
+print("Cl 5°:",Cl3)
+
+plt.figure()
+plt.plot([5,10,15],[Cl3,Cl2,Cl])     
+        
+    
 
 
 
@@ -205,8 +329,9 @@ plt.plot(np.arange(0,len(gamma_solve)),gamma_solve/20,"-o")
 
 ####print for debugging###
 #plt.figure()
-#for i in range(0,np.size(panels)):
-#    panel = panels[i]
+for i in range(0,np.size(panels)):
+    panel = panels[i]
+        
 #    print("Panel",i+1)
 #    print("xi",panels[i].xi)
 #    print("xf",panels[i].xf)
